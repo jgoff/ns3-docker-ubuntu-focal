@@ -5,6 +5,7 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 RUN apt-get update && \
     apt-get install -y \
+        ccache \
         git \
         mercurial \
         gcc \
@@ -13,6 +14,7 @@ RUN apt-get update && \
         python3 \
         python3-dev \
         python3-setuptools \
+        python3-pip \
         qt5-default \
         gir1.2-goocanvas-2.0 \
         python3-gi \
@@ -50,13 +52,22 @@ RUN apt-get update && \
         vtun \
         lxc \
         libboost-all-dev \
-        wget
+        wget \
+        pkg-config \
+        tcpdump \
+        libgtk-3-dev
 
 RUN mkdir -p /usr/ns3
 WORKDIR /usr 
 
+# avoid https://groups.google.com/g/ns-3-users/c/079OdTrF0es
+# by using cppyy==2.4.1
+RUN python3 -m pip install --user cppyy==2.4.1
+
 RUN wget https://www.nsnam.org/release/ns-allinone-3.37.tar.bz2  && \
     tar -jxvf ns-allinone-3.37.tar.bz2
+
+ENV NS3_BINDINGS_INSTALL_DIR=/root/.local/lib/python3.8/site-packages
 
 RUN cd ns-allinone-3.37 && ./build.py --enable-examples --enable-tests
 
